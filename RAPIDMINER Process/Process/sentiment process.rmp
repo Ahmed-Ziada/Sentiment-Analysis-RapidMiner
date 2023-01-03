@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8"?><process version="9.10.008">
+  <context>
+    <input/>
+    <output/>
+    <macros/>
+  </context>
+  <operator activated="true" class="process" compatibility="9.10.008" expanded="true" name="Process">
+    <parameter key="logverbosity" value="init"/>
+    <parameter key="random_seed" value="2001"/>
+    <parameter key="send_mail" value="never"/>
+    <parameter key="notification_email" value=""/>
+    <parameter key="process_duration_for_mail" value="30"/>
+    <parameter key="encoding" value="SYSTEM"/>
+    <process expanded="true">
+      <operator activated="true" class="retrieve" compatibility="9.10.008" expanded="true" height="68" name="Retrieve Cleaning Amazon Data" width="90" x="112" y="187">
+        <parameter key="repository_entry" value="//Amazon/Data/Cleaning Amazon Data"/>
+      </operator>
+      <operator activated="true" class="nominal_to_text" compatibility="9.10.008" expanded="true" height="82" name="Nominal to Text" width="90" x="380" y="187">
+        <parameter key="attribute_filter_type" value="single"/>
+        <parameter key="attribute" value="Text"/>
+        <parameter key="attributes" value=""/>
+        <parameter key="use_except_expression" value="false"/>
+        <parameter key="value_type" value="nominal"/>
+        <parameter key="use_value_type_exception" value="false"/>
+        <parameter key="except_value_type" value="file_path"/>
+        <parameter key="block_type" value="single_value"/>
+        <parameter key="use_block_type_exception" value="false"/>
+        <parameter key="except_block_type" value="single_value"/>
+        <parameter key="invert_selection" value="false"/>
+        <parameter key="include_special_attributes" value="false"/>
+      </operator>
+      <operator activated="true" class="operator_toolbox:extract_sentiment" compatibility="2.13.000" expanded="true" height="103" name="Extract Sentiment" width="90" x="581" y="187">
+        <parameter key="model" value="vader"/>
+        <parameter key="text_attribute" value="Text"/>
+        <parameter key="show_advanced_output" value="false"/>
+        <parameter key="use_default_tokenization_regex" value="true"/>
+        <list key="additional_words"/>
+      </operator>
+      <operator activated="true" class="generate_attributes" compatibility="9.10.008" expanded="true" height="82" name="Generate Attributes" width="90" x="648" y="493">
+        <list key="function_descriptions">
+          <parameter key="Sentiment" value="if(Score&gt;0,&#10;   &quot;Positive&quot;,&#10;   if(Score==0,&#10;      &quot;Neutral&quot;,&#10;      &quot;Negative&quot;&#10;     )&#10;)"/>
+        </list>
+        <parameter key="keep_all" value="true"/>
+      </operator>
+      <operator activated="true" class="write_excel" compatibility="9.10.008" expanded="true" height="103" name="Write Excel" width="90" x="849" y="391">
+        <parameter key="excel_file" value="D:/Ziada/Amazon/Amazon  Sentiment.xlsx"/>
+        <parameter key="file_format" value="xlsx"/>
+        <enumeration key="sheet_names"/>
+        <parameter key="sheet_name" value="RapidMiner Data"/>
+        <parameter key="date_format" value="yyyy-MM-dd HH:mm:ss"/>
+        <parameter key="number_format" value="#.0"/>
+        <parameter key="encoding" value="SYSTEM"/>
+      </operator>
+      <operator activated="true" class="store" compatibility="9.10.008" expanded="true" height="68" name="Store" width="90" x="983" y="238">
+        <parameter key="repository_entry" value="../Data/Extract Sentiment"/>
+      </operator>
+      <connect from_op="Retrieve Cleaning Amazon Data" from_port="output" to_op="Nominal to Text" to_port="example set input"/>
+      <connect from_op="Nominal to Text" from_port="example set output" to_op="Extract Sentiment" to_port="exa"/>
+      <connect from_op="Extract Sentiment" from_port="exa" to_op="Generate Attributes" to_port="example set input"/>
+      <connect from_op="Generate Attributes" from_port="example set output" to_op="Write Excel" to_port="input"/>
+      <connect from_op="Write Excel" from_port="through" to_op="Store" to_port="input"/>
+      <connect from_op="Store" from_port="through" to_port="result 1"/>
+      <portSpacing port="source_input 1" spacing="0"/>
+      <portSpacing port="sink_result 1" spacing="0"/>
+      <portSpacing port="sink_result 2" spacing="0"/>
+    </process>
+  </operator>
+</process>
